@@ -24,14 +24,15 @@ import com.surgex.app.ui.theme.SurgeWhite
 fun DriverHomeScreen(
     onOnlineChanged: (Boolean) -> Unit = {},
     onRideRequest: () -> Unit = {},
-    onSwitchToRider: () -> Unit = {}
+    onSwitchToRider: () -> Unit = {},
+    onBack: () -> Unit = {}
 ) {
     var online by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier.fillMaxSize().background(SurgeBlack)
     ) {
-        DriverHeader(online = online, onSwitchToRider = onSwitchToRider)
+        DriverHeader(online = online, onSwitchToRider = onSwitchToRider, onBack = onBack)
 
         Box(
             modifier = Modifier
@@ -74,7 +75,11 @@ fun DriverHomeScreen(
 }
 
 @Composable
-private fun DriverHeader(online: Boolean, onSwitchToRider: () -> Unit) {
+private fun DriverHeader(
+    online: Boolean,
+    onSwitchToRider: () -> Unit,
+    onBack: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -82,6 +87,18 @@ private fun DriverHeader(online: Boolean, onSwitchToRider: () -> Unit) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Back button
+        Box(
+            modifier = Modifier
+                .size(46.dp)
+                .clip(CircleShape)
+                .background(Color.Black.copy(alpha = 0.72f))
+                .clickable { onBack() },
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = "←", color = SurgeWhite, fontSize = 18.sp)
+        }
+
         Column {
             Text(text = "SurgeX", color = SurgeWhite, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold)
             Text(
