@@ -187,13 +187,24 @@ fun PhoneVerifyScreen(
                     Button(
                         onClick = {
                             val raw = phone.trim().removePrefix("0")
-                            val formatted = "+27$raw"
-
-                            if (raw.length < 9) {
-                                errorMessage = "Please enter a valid South African number."
+                            
+                            // Enhanced validation
+                            if (raw.isBlank()) {
+                                errorMessage = "Please enter your phone number."
+                                return@Button
+                            }
+                            
+                            if (!raw.all { it.isDigit() }) {
+                                errorMessage = "Phone number must contain only digits."
+                                return@Button
+                            }
+                            
+                            if (raw.length < 9 || raw.length > 10) {
+                                errorMessage = "Please enter a valid 9-10 digit South African number."
                                 return@Button
                             }
 
+                            val formatted = "+27$raw"
                             isLoading = true
                             errorMessage = null
 
