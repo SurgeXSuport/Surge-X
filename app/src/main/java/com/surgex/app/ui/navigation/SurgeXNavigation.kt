@@ -12,14 +12,12 @@ import com.surgex.app.ui.screens.auth.OtpScreen
 import com.surgex.app.ui.screens.auth.PhoneVerifyScreen
 import com.surgex.app.ui.screens.auth.RegisterScreen
 import com.surgex.app.ui.screens.driver.*
-import com.surgex.app.ui.screens.onboarding.RoleSelectionScreen
-import com.surgex.app.ui.screens.rider.*
 import com.surgex.app.ui.screens.splash.SplashScreen
+import com.surgex.app.ui.screens.rider.*
 import kotlinx.coroutines.launch
 
 private enum class SurgeXScreen {
     SPLASH,
-    ROLE_SELECTION,
     LOGIN,
     REGISTER,
     PHONE_VERIFY,
@@ -61,13 +59,13 @@ fun SurgeXNavigation() {
     LaunchedEffect(Unit) {
         if (!authController.isLoggedIn) {
             checkingSession = false
-            currentScreen = SurgeXScreen.ROLE_SELECTION
+            currentScreen = SurgeXScreen.LOGIN
         } else {
             val profile = authController.getCurrentUserProfile()
             if (profile == null || profile.accountStatus != "APPROVED") {
                 authController.logout()
                 checkingSession = false
-                currentScreen = SurgeXScreen.ROLE_SELECTION
+                currentScreen = SurgeXScreen.LOGIN
             } else {
                 selectedRole = profile.activeMode
                 preferences.edit().putString(LAST_MODE_KEY, profile.activeMode.name).apply()
@@ -86,24 +84,7 @@ fun SurgeXNavigation() {
     when (currentScreen) {
 
         SurgeXScreen.SPLASH -> {
-            SplashScreen { currentScreen = SurgeXScreen.ROLE_SELECTION }
-        }
-
-        SurgeXScreen.ROLE_SELECTION -> {
-            RoleSelectionScreen(
-                onRiderSelected = {
-                    selectedRole = UserRole.RIDER
-                    preferences.edit().putString(LAST_MODE_KEY, UserRole.RIDER.name).apply()
-                    currentScreen = if (authController.isLoggedIn)
-                        SurgeXScreen.RIDER_HOME else SurgeXScreen.LOGIN
-                },
-                onDriverSelected = {
-                    selectedRole = UserRole.DRIVER
-                    preferences.edit().putString(LAST_MODE_KEY, UserRole.DRIVER.name).apply()
-                    currentScreen = if (authController.isLoggedIn)
-                        SurgeXScreen.DRIVER_HOME else SurgeXScreen.LOGIN
-                }
-            )
+            SplashScreen { currentScreen = SurgeXScreen.LOGIN }
         }
 
         SurgeXScreen.LOGIN -> {
@@ -118,7 +99,7 @@ fun SurgeXNavigation() {
                     }
                 },
                 onRegister = { currentScreen = SurgeXScreen.REGISTER },
-                onBack = { currentScreen = SurgeXScreen.ROLE_SELECTION }
+                onBack = { currentScreen = SurgeXScreen.SPLASH }
             )
         }
 
@@ -167,6 +148,12 @@ fun SurgeXNavigation() {
                             currentScreen = SurgeXScreen.DRIVER_HOME
                         }
                     }
+                },
+                onBack = {
+                    scope.launch {
+                        authController.logout()
+                        currentScreen = SurgeXScreen.LOGIN
+                    }
                 }
             )
         }
@@ -208,6 +195,12 @@ fun SurgeXNavigation() {
                             preferences.edit().putString(LAST_MODE_KEY, UserRole.RIDER.name).apply()
                             currentScreen = SurgeXScreen.RIDER_HOME
                         }
+                    }
+                },
+                onBack = {
+                    scope.launch {
+                        authController.logout()
+                        currentScreen = SurgeXScreen.LOGIN
                     }
                 }
             )
